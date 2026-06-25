@@ -39,7 +39,6 @@ services:
     labels:
       shipyard.readiness.exec.command: '["redis-cli -h 127.0.0.1 ping | grep -q PONG"]'
   calcom:
-    image: calcom.docker.scarf.sh/calcom/cal.diy
     build:
       context: .
       dockerfile: Dockerfile
@@ -138,30 +137,7 @@ services:
     labels:
       shipyard.route: /api
       shipyard.readiness.http.path: /
-  studio:
-    image: calcom.docker.scarf.sh/calcom/cal.diy
-    command: npx prisma studio
-    env_file:
-      - ./.env
-    ports:
-      - 5556:5555
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DATABASE_HOST}:5432/${POSTGRES_DB}
-      DATABASE_DIRECT_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DATABASE_HOST}:5432/${POSTGRES_DB}
-    depends_on:
-      database:
-        condition: service_healthy
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - node -e "require('http').get('http://127.0.0.1:5555/',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    labels:
-      shipyard.route: /
-      shipyard.readiness.http.path: /
+
 volumes:
   database-data:
     labels:
