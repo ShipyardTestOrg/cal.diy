@@ -2,6 +2,8 @@
 services:
   database:
     image: postgres:16
+    ports:
+      - "5432:5432"
     volumes:
       - database-data:/var/lib/postgresql/data
     env_file:
@@ -46,6 +48,7 @@ services:
       - 3000:3000
     environment:
       NODE_ENV: production
+      DATABASE_HOST: database:5432
       DATABASE_URL: postgresql://unicorn_user:magical_password@database:5432/calendso
       DATABASE_DIRECT_URL: postgresql://unicorn_user:magical_password@database:5432/calendso
       NEXTAUTH_SECRET: 1mThquGhN4c3VwyVP6b1ASuakI/VUZerSutlutKpnkM=
