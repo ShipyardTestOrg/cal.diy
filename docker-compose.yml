@@ -20,8 +20,6 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-    labels:
-      shipyard.readiness.exec.command: '["pg_isready","-U","unicorn_user","-d","calendso","-h","127.0.0.1"]'
   redis:
     image: redis:7
     volumes:
