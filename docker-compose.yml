@@ -39,21 +39,7 @@ services:
     labels:
       shipyard.readiness.exec.command: '["redis-cli","-h","127.0.0.1","ping"]'
   calcom:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_WEBAPP_URL: http://localhost:3000
-        NEXT_PUBLIC_API_V2_URL: http://localhost:5555/api/v2
-        NEXT_PUBLIC_LICENSE_CONSENT: ${NEXT_PUBLIC_LICENSE_CONSENT}
-        NEXT_PUBLIC_WEBSITE_TERMS_URL: ${NEXT_PUBLIC_WEBSITE_TERMS_URL}
-        NEXT_PUBLIC_WEBSITE_PRIVACY_POLICY_URL: ${NEXT_PUBLIC_WEBSITE_PRIVACY_POLICY_URL}
-        NEXT_PUBLIC_SINGLE_ORG_SLUG: ${NEXT_PUBLIC_SINGLE_ORG_SLUG}
-        ORGANIZATIONS_ENABLED: ${ORGANIZATIONS_ENABLED}
-        CALCOM_TELEMETRY_DISABLED: 1
-        DATABASE_URL: postgresql://unicorn_user:magical_password@database:5432/calendso
-        DATABASE_DIRECT_URL: postgresql://unicorn_user:magical_password@database:5432/calendso
-        CSP_POLICY: ${CSP_POLICY}
+    image: calcom/cal.com:latest
     env_file:
       - ./.env
     ports:
@@ -85,58 +71,6 @@ services:
       shipyard.readiness.http.path: /
       shipyard.env.NEXT_PUBLIC_WEBAPP_URL: '${SHIPYARD_URL}'
       shipyard.env.NEXTAUTH_URL: '${SHIPYARD_URL}' 
-  calcom-api:
-    build:
-      context: .
-      dockerfile: apps/api/v2/Dockerfile
-      args:
-        DATABASE_URL: postgresql://unicorn_user:magical_password@database:5432/calendso
-        DATABASE_DIRECT_URL: postgresql://unicorn_user:magical_password@database:5432/calendso
-    env_file:
-      - ./.env
-    ports:
-      - 5555:5555
-    environment:
-      NODE_ENV: ""
-      API_PORT: "5555"
-      API_URL: http://localhost
-      DATABASE_URL: postgresql://unicorn_user:magical_password@database:5432/calendso
-      DATABASE_READ_URL: postgresql://unicorn_user:magical_password@database:5432/calendso
-      DATABASE_WRITE_URL: postgresql://unicorn_user:magical_password@database:5432/calendso
-      DATABASE_DIRECT_URL: postgresql://unicorn_user:magical_password@database:5432/calendso
-      NEXTAUTH_SECRET: 1mThquGhN4c3VwyVP6b1ASuakI/VUZerSutlutKpnkM=
-      JWT_SECRET: ME6rxf+ABYb8vAWMfp0BdGXlFf0NDHdJpHEqXYHYGuA=
-      REDIS_URL: redis://redis:6379
-      LOG_LEVEL: ${LOG_LEVEL}
-      API_KEY_PREFIX: cal_
-      WEB_APP_URL: http://localhost:3000
-      IS_E2E: false
-      REWRITE_API_V2_PREFIX: 1
-      CALCOM_LICENSE_KEY: ${CALCOM_LICENSE_KEY}
-      STRIPE_API_KEY: sk_test_1234567890
-      STRIPE_WEBHOOK_SECRET: whsec_1234567890
-      IS_TEAM_BILLING_ENABLED: false
-      AXIOM_DATASET: ${AXIOM_DATASET}
-      AXIOM_TOKEN: ${AXIOM_TOKEN}
-      LOGGER_BRIDGE_LOG_LEVEL: 1
-      DOCS_URL: ${DOCS_URL}
-      GET_LICENSE_KEY_URL: ${GET_LICENSE_KEY_URL}
-    depends_on:
-      database:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - node -e "require('http').get('http://127.0.0.1:'+(process.env.API_PORT||5555)+'/',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 90s
-    labels:
-      shipyard.route: /api
-      shipyard.readiness.http.path: /
 
 volumes:
   database-data:
